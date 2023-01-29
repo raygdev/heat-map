@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-width: min-content;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 id="title">Monthly Global Land-Surface Temperature</h1>
+        <h3 id="description">1753 - 2015 base temperature 8.66 &#8451;</h3>
+    </div>
+    <script src="https://cdn.freecodecamp.org/testable-projects-fcc/v1/bundle.js"></script>
+    <script type="module">
+        import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm"
+
+        let url = 'https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/global-temperature.json'
+
+        fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                console.log(data)
+
+                let variance = data.monthlyVariance
+
+                let w = 700;
+                let h = 600;
+                let padding = 60;
+
+                //create and append svg element
+                let svg = d3.select('.container').append('svg')
+                svg.attr('width', w)
+                   .attr('height', h)
+
+                //create an x axis of years
+                let xMin = d3.min(variance, (d) => d.year)
+                let xMax = d3.max(variance, (d) => d.year)
+                let xScale = d3.scaleLinear()
+                               .domain([xMin, xMax])
+                               .range([padding, w - padding])
+                let xAxis = d3.axisBottom(xScale).tickFormat(d3.format('d')).tickSize(10, 1)
+
+                //create y axis for months
+
+                //format integers into months
+                let formatMonth = d3.timeFormat("%B")
+                let yMin = d3.min(variance, (d) => new Date(2010, d.month - 1))
+                let yMax = d3.max(variance, (d) => new Date(2010, d.month - 1))
+                let yScale = d3.scaleTime()
+                               .domain([yMin, yMax])
+                               .range([h - padding, padding])
+                let yAxis = d3.axisLeft(yScale)
+                              .tickFormat(formatMonth)
+                              .tickSize(10,1)
+
+                //append x axis
+                svg.append('g')
+                   .attr('id','x-axis')
+                   .attr('transform', `translate(0, ${h -padding})`)
+                   .call(xAxis)
+
+                //append y axis
+                svg.append('g')
+                   .attr('id', 'y-axis')
+                   .attr('transform', `translate(${padding}, 0)`)
+                   .call(yAxis)
+
+            })
+    </script>
+</body>
+</html>
