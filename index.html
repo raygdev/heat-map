@@ -31,11 +31,12 @@
             .then(data => {
                 console.log(data)
 
-                let variance = data.monthlyVariance
+                const variance = data.monthlyVariance
+                const baseTemp = data.baseTemperature
 
-                let w = 700;
+                let w = 900;
                 let h = 600;
-                let padding = 60;
+                let padding = 70;
 
                 //create and append svg element
                 let svg = d3.select('.container').append('svg')
@@ -48,7 +49,7 @@
                 let xScale = d3.scaleLinear()
                                .domain([xMin, xMax])
                                .range([padding, w - padding])
-                let xAxis = d3.axisBottom(xScale).tickFormat(d3.format('d')).tickSize(10, 1)
+                let xAxis = d3.axisBottom(xScale).tickFormat(d3.format('d'))
 
                 //create y axis for months
 
@@ -61,8 +62,7 @@
                                .range([h - padding, padding])
                 let yAxis = d3.axisLeft(yScale)
                               .tickFormat(formatMonth)
-                              .tickSize(10,1)
-
+                              
                 //append x axis
                 svg.append('g')
                    .attr('id','x-axis')
@@ -75,6 +75,26 @@
                    .attr('transform', `translate(${padding}, 0)`)
                    .call(yAxis)
 
+                //append and create rects for heat map
+                svg.selectAll('rect')
+                   .data(variance)
+                   .enter()
+                   .append('rect')
+                   .attr('class', 'cell')
+                   .attr('data-year', (d) => d.year)
+                   .attr('data-month', (d) => d.month - 1)
+                   .attr('data-temp', (d) => baseTemp + d.variance)
+                   .attr('x', (d) => xScale(d.year))
+                   .attr('y', (d) => yScale(new Date(2010, d.month)))
+                   .attr('width', 3)
+                   .attr('height', (d) => padding - (h/12) + 23)
+                   .attr('fill', 'blue')
+                   .attr('stroke', 'black')
+                   .attr('stroke-fill', 1)
+                   // for later use on tool tip
+                   .on('mouseenter',function(){d3.select(this).attr('fill','white')})
+                   .on('mouseleave', function(){d3.select(this).attr('fill', 'blue')})
+                   
             })
     </script>
 </body>
